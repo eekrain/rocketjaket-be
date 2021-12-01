@@ -1,6 +1,36 @@
-actions: []
+actions:
+- name: bulkUpdateInventoryProduct
+  definition:
+    kind: synchronous
+    handler: http://172.17.0.1:3000/bulkUpdateInventoryProduct
+    headers:
+    - value: unknown
+      name: authorization
+  permissions:
+  - role: administrator
+- name: bulkUpdateVariantsMetadata
+  definition:
+    kind: synchronous
+    handler: http://172.17.0.1:3000/bulkUpdateVariantsMetadata
+    forward_client_headers: true
+    headers:
+    - value: unknown
+      name: authorization
+  permissions:
+  - role: administrator
 custom_types:
   enums: []
-  input_objects: []
-  objects: []
+  input_objects:
+  - name: InventoryVariantMetadataInsertInput
+  - name: SampleInput
+  - name: SignupCredentials
+  - name: InventoryVariantMetadataNeedUpdateInput
+  - name: update_inventory_product
+  - name: insert_inventory_product_variants
+  - name: insert_update_inventory_product
+  objects:
+  - name: BulkUpdateVariantsMetadataOutput
+  - name: SampleOutput
+  - name: User
+  - name: bulkUpdateInventoryProductOutput
   scalars: []

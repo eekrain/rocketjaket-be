@@ -1,0 +1,28 @@
+mutation Inventory_UpdateInventoryProductByPK(
+  $id: uuid!
+  $available_qty: Int
+  $min_available_qty: Int
+  $override_capital_price: Int
+  $override_selling_price: Int
+  $override_discount: Int
+  $product_id: uuid!
+) {
+  update_rocketjaket_inventory_product_by_pk(
+    pk_columns: { id: $id }
+    _set: {
+      available_qty: $available_qty
+      min_available_qty: $min_available_qty
+      override_capital_price: $override_capital_price
+      override_selling_price: $override_selling_price
+      override_discount: $override_discount
+      product_id: $product_id
+    }
+  ) {
+    product {
+      name
+      product_category {
+        name
+      }
+    }
+  }
+}

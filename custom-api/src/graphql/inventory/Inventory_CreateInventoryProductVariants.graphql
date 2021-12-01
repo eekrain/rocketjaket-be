@@ -1,0 +1,9 @@
+mutation Inventory_CreateInventoryProductVariants(
+  $insert_rocketjaket_inventory_product_variant: [rocketjaket_inventory_product_variant_insert_input!]!
+) {
+  insert_rocketjaket_inventory_product_variant(
+    objects: $insert_rocketjaket_inventory_product_variant
+  ) {
+    affected_rows
+  }
+}

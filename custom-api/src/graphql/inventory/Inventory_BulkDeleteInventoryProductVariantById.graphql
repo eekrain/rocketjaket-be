@@ -1,0 +1,9 @@
+mutation Inventory_BulkDeleteInventoryProductVariantById(
+  $inventory_product_id: uuid = ""
+) {
+  delete_rocketjaket_inventory_product_variant(
+    where: { inventory_product_id: { _eq: $inventory_product_id } }
+  ) {
+    affected_rows
+  }
+}

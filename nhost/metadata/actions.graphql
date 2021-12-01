@@ -1,0 +1,76 @@
+type Mutation {
+  bulkUpdateInventoryProduct (
+    inventory_product_id: uuid!
+    set_inventory_product: update_inventory_product!
+    insert_update_inventory_product: [insert_inventory_product_variants!]!
+  ): bulkUpdateInventoryProductOutput
+}
+
+type Mutation {
+  bulkUpdateVariantsMetadata (
+    old_variant_title: String!
+    new_variant_title: String!
+    needDeleteIds: [Int!]!
+    needAddVariantMetadata: [InventoryVariantMetadataInsertInput!]!
+    needUpdateVariantMetadata: [InventoryVariantMetadataNeedUpdateInput!]!
+  ): BulkUpdateVariantsMetadataOutput
+}
+
+input InventoryVariantMetadataInsertInput {
+  variant_title : String
+  variant_value : String
+}
+
+input SampleInput {
+  username : String!
+  password : String!
+}
+
+input SignupCredentials {
+  email : String!
+  password : String!
+}
+
+input InventoryVariantMetadataNeedUpdateInput {
+  id : Int!
+  variant_value : String
+}
+
+input update_inventory_product {
+  available_qty : Int
+  min_available_qty : Int
+  product_id : uuid!
+  override_selling_price : Int
+  override_discount : Int
+  override_capital_price : Int
+}
+
+input insert_inventory_product_variants {
+  inventory_product_id : uuid
+  inventory_variant_metadata_id : Int
+}
+
+input insert_update_inventory_product {
+  inventory_product_id : uuid
+  inventory_variant_metadata_id : Int
+}
+
+type BulkUpdateVariantsMetadataOutput {
+  variant_title : String
+  is_any_update : Boolean
+}
+
+type SampleOutput {
+  accessToken : String!
+}
+
+type User {
+  id : Int!
+  email : String!
+}
+
+type bulkUpdateInventoryProductOutput {
+  insert_inventory_product_variants_affected_rows : Int
+  inventory_product_name : String
+}
+

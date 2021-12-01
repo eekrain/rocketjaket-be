@@ -1,0 +1,1 @@
+drop schema "rocketjaket" cascade;
