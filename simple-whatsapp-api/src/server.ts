@@ -1,0 +1,36 @@
+import express, { NextFunction, Request, Response } from "express";
+import cookieParser from "cookie-parser";
+import StatusCodes from "http-status-codes";
+import morgan from "morgan";
+import helmet from "helmet";
+import logger from "./shared/logger";
+import baseRouter from "./routes";
+
+const app = express();
+const { BAD_REQUEST } = StatusCodes;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Show routes called in console during development
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
+// Security
+if (process.env.NODE_ENV === "production") {
+  app.use(helmet());
+}
+
+app.use("/api", baseRouter);
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  logger.err(err, true);
+  return res.status(BAD_REQUEST).json({
+    error: err.message,
+  });
+});
+
+// Export express instance
+export default app;
