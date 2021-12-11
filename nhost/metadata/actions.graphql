@@ -16,6 +16,92 @@ type Mutation {
   ): BulkUpdateVariantsMetadataOutput
 }
 
+type Mutation {
+  createTransaction (
+    user_id: uuid!
+    payment_type: String!
+    total_transaction: Int!
+    cash_in_amount: Int!
+    transaction_items: [transaction_items!]!
+  ): createTransactionOutput
+}
+
+type Query {
+  getWhatsappAuthStatus : getWhatsappAuthStatusOutput
+}
+
+type Mutation {
+  sendReceipt (
+    customer: CustomerInput
+    receipt_type: String!
+    invoice_number: String!
+  ): sendReceiptOutput
+}
+
+type Mutation {
+  whatsappSignout : whatsappSignoutOutput
+}
+
+enum InsertTransactionConstraint {
+  """ unique or primary key constraint """ transaction_pkey
+}
+
+enum InsertTransactionUpdateColumn {
+  """ column name """ created_at
+  """ column name """ invoice_number
+  """ column name """ payment_type
+  """ column name """ total_transaction
+  """ column name """ updated_at
+  """ column name """ user_id
+}
+
+enum InsertTransactionItemConstraint {
+  """ unique or primary key constraint """ transaction_item_pkey
+}
+
+enum InsertTransactionItemUpdateColumn {
+  """ column name """ created_at
+  """ column name """ discount
+  """ column name """ id
+  """ column name """ price
+  """ column name """ product_name
+  """ column name """ purchase_qty
+  """ column name """ subtotal
+  """ column name """ transaction_invoice_number
+  """ column name """ updated_at
+  """ column name """ variant
+}
+
+enum createTransactionRocketjaketTransactionItemConstraint {
+  """ unique or primary key constraint """ transaction_item_pkey
+}
+
+enum createTransactionRocketjaketTransactionItemUpdateColumn {
+  """ column name """ created_at
+  """ column name """ discount
+  """ column name """ id
+  """ column name """ price
+  """ column name """ product_name
+  """ column name """ purchase_qty
+  """ column name """ subtotal
+  """ column name """ transaction_invoice_number
+  """ column name """ updated_at
+  """ column name """ variant
+}
+
+enum createTransactionRocketjaketTransactionConstraint {
+  """ unique or primary key constraint """ transaction_pkey
+}
+
+enum createTransactionRocketjaketTransactionUpdateColumn {
+  """ column name """ created_at
+  """ column name """ invoice_number
+  """ column name """ payment_type
+  """ column name """ total_transaction
+  """ column name """ updated_at
+  """ column name """ user_id
+}
+
 input InventoryVariantMetadataInsertInput {
   variant_title : String
   variant_value : String
@@ -55,13 +141,299 @@ input insert_update_inventory_product {
   inventory_variant_metadata_id : Int
 }
 
+input InsertTransactionInput {
+  created_at : timestamptz
+  invoice_number : String
+  payment_type : String
+  total_transaction : Int
+  transaction_items : InsertTransactionItemArrRelInsertInput
+  updated_at : timestamptz
+  user_id : uuid
+}
+
+input InsertTransactionItemArrRelInsertInput {
+  data : [InsertTransactionItemInsertInput!]!
+  on_conflict : InsertTransactionItemOnConflict
+}
+
+input InsertTransactionItemInsertInput {
+  created_at : timestamptz
+  discount : Int
+  id : uuid
+  price : Int
+  product_name : String
+  purchase_qty : Int
+  subtotal : Int
+  transaction : InsertTransactionObjRelInsertInput
+  transaction_invoice_number : String
+  updated_at : timestamptz
+  variant : String
+}
+
+input InsertTransactionObjRelInsertInput {
+  data : InsertTransactionInput!
+  on_conflict : InsertTransactionOnConflict
+}
+
+input InsertTransactionOnConflict {
+  constraint : InsertTransactionConstraint!
+  update_columns : [InsertTransactionUpdateColumn!]!
+  where : InsertTransactionBoolExp
+}
+
+input InsertTransactionBoolExp {
+  _and : [InsertTransactionBoolExp!]
+  _not : InsertTransactionBoolExp
+  _or : [InsertTransactionBoolExp!]
+  created_at : MyMutationTimestamptzComparisonExp
+  invoice_number : MyMutationStringComparisonExp
+  payment_type : MyMutationStringComparisonExp
+  total_transaction : MyMutationIntComparisonExp
+  transaction_items : InsertTransactionItemBoolExp
+  updated_at : MyMutationTimestamptzComparisonExp
+  user_id : MyMutationUuidComparisonExp
+}
+
+input MyMutationTimestamptzComparisonExp {
+  _eq : timestamptz
+  _gt : timestamptz
+  _gte : timestamptz
+  _in : [timestamptz!]
+  _is_null : Boolean
+  _lt : timestamptz
+  _lte : timestamptz
+  _neq : timestamptz
+  _nin : [timestamptz!]
+}
+
+input MyMutationStringComparisonExp {
+  _eq : String
+  _gt : String
+  _gte : String
+  _ilike : String
+  _in : [String!]
+  _iregex : String
+  _is_null : Boolean
+  _like : String
+  _lt : String
+  _lte : String
+  _neq : String
+  _nilike : String
+  _nin : [String!]
+  _niregex : String
+  _nlike : String
+  _nregex : String
+  _nsimilar : String
+  _regex : String
+  _similar : String
+}
+
+input MyMutationIntComparisonExp {
+  _eq : Int
+  _gt : Int
+  _gte : Int
+  _in : [Int!]
+  _is_null : Boolean
+  _lt : Int
+  _lte : Int
+  _neq : Int
+  _nin : [Int!]
+}
+
+input InsertTransactionItemBoolExp {
+  _and : [InsertTransactionItemBoolExp!]
+  _not : InsertTransactionItemBoolExp
+  _or : [InsertTransactionItemBoolExp!]
+  created_at : MyMutationTimestamptzComparisonExp
+  discount : MyMutationIntComparisonExp
+  id : MyMutationUuidComparisonExp
+  price : MyMutationIntComparisonExp
+  product_name : MyMutationStringComparisonExp
+  purchase_qty : MyMutationIntComparisonExp
+  subtotal : MyMutationIntComparisonExp
+  transaction : InsertTransactionBoolExp
+  transaction_invoice_number : MyMutationStringComparisonExp
+  updated_at : MyMutationTimestamptzComparisonExp
+  variant : MyMutationStringComparisonExp
+}
+
+input MyMutationUuidComparisonExp {
+  _eq : uuid
+  _gt : uuid
+  _gte : uuid
+  _in : [uuid!]
+  _is_null : Boolean
+  _lt : uuid
+  _lte : uuid
+  _neq : uuid
+  _nin : [uuid!]
+}
+
+input InsertTransactionItemOnConflict {
+  constraint : InsertTransactionItemConstraint!
+  update_columns : [InsertTransactionItemUpdateColumn!]!
+  where : InsertTransactionItemBoolExp
+}
+
+input createTransaction_TransactionItemInsertInput {
+  created_at : timestamptz
+  discount : Int
+  id : uuid
+  price : Int
+  product_name : String
+  purchase_qty : Int
+  subtotal : Int
+  transaction : createTransactionRocketjaketTransactionObjRelInsertInput
+  transaction_invoice_number : String
+  updated_at : timestamptz
+  variant : String
+}
+
+input createTransactionRocketjaketTransactionObjRelInsertInput {
+  data : createTransactionRocketjaketTransactionInsertInput!
+  on_conflict : createTransactionRocketjaketTransactionOnConflict
+}
+
+input createTransactionRocketjaketTransactionInsertInput {
+  created_at : timestamptz
+  invoice_number : String
+  payment_type : String
+  total_transaction : Int
+  transaction_items : createTransactionRocketjaketTransactionItemArrRelInsertInput
+  updated_at : timestamptz
+  user_id : uuid
+}
+
+input createTransactionRocketjaketTransactionItemArrRelInsertInput {
+  data : [createTransaction_TransactionItemInsertInput!]!
+  on_conflict : createTransactionRocketjaketTransactionItemOnConflict
+}
+
+input createTransactionRocketjaketTransactionItemOnConflict {
+  constraint : createTransactionRocketjaketTransactionItemConstraint!
+  update_columns : [createTransactionRocketjaketTransactionItemUpdateColumn!]!
+  where : createTransactionRocketjaketTransactionItemBoolExp
+}
+
+input createTransactionRocketjaketTransactionItemBoolExp {
+  _and : [createTransactionRocketjaketTransactionItemBoolExp!]
+  _not : createTransactionRocketjaketTransactionItemBoolExp
+  _or : [createTransactionRocketjaketTransactionItemBoolExp!]
+  created_at : createTransactionTimestamptzComparisonExp
+  discount : createTransactionIntComparisonExp
+  id : createTransactionUuidComparisonExp
+  price : createTransactionIntComparisonExp
+  product_name : createTransactionStringComparisonExp
+  purchase_qty : createTransactionIntComparisonExp
+  subtotal : createTransactionIntComparisonExp
+  transaction : createTransactionRocketjaketTransactionBoolExp
+  transaction_invoice_number : createTransactionStringComparisonExp
+  updated_at : createTransactionTimestamptzComparisonExp
+  variant : createTransactionStringComparisonExp
+}
+
+input createTransactionTimestamptzComparisonExp {
+  _eq : timestamptz
+  _gt : timestamptz
+  _gte : timestamptz
+  _in : [timestamptz!]
+  _is_null : Boolean
+  _lt : timestamptz
+  _lte : timestamptz
+  _neq : timestamptz
+  _nin : [timestamptz!]
+}
+
+input createTransactionIntComparisonExp {
+  _eq : Int
+  _gt : Int
+  _gte : Int
+  _in : [Int!]
+  _is_null : Boolean
+  _lt : Int
+  _lte : Int
+  _neq : Int
+  _nin : [Int!]
+}
+
+input createTransactionUuidComparisonExp {
+  _eq : uuid
+  _gt : uuid
+  _gte : uuid
+  _in : [uuid!]
+  _is_null : Boolean
+  _lt : uuid
+  _lte : uuid
+  _neq : uuid
+  _nin : [uuid!]
+}
+
+input createTransactionStringComparisonExp {
+  _eq : String
+  _gt : String
+  _gte : String
+  _ilike : String
+  _in : [String!]
+  _iregex : String
+  _is_null : Boolean
+  _like : String
+  _lt : String
+  _lte : String
+  _neq : String
+  _nilike : String
+  _nin : [String!]
+  _niregex : String
+  _nlike : String
+  _nregex : String
+  _nsimilar : String
+  _regex : String
+  _similar : String
+}
+
+input createTransactionRocketjaketTransactionBoolExp {
+  _and : [createTransactionRocketjaketTransactionBoolExp!]
+  _not : createTransactionRocketjaketTransactionBoolExp
+  _or : [createTransactionRocketjaketTransactionBoolExp!]
+  created_at : createTransactionTimestamptzComparisonExp
+  invoice_number : createTransactionStringComparisonExp
+  payment_type : createTransactionStringComparisonExp
+  total_transaction : createTransactionIntComparisonExp
+  transaction_items : createTransactionRocketjaketTransactionItemBoolExp
+  updated_at : createTransactionTimestamptzComparisonExp
+  user_id : createTransactionUuidComparisonExp
+}
+
+input createTransactionRocketjaketTransactionOnConflict {
+  constraint : createTransactionRocketjaketTransactionConstraint!
+  update_columns : [createTransactionRocketjaketTransactionUpdateColumn!]!
+  where : createTransactionRocketjaketTransactionBoolExp
+}
+
+input transaction_items {
+  product_inventory_id : uuid!
+  product_name : String!
+  variant : String!
+  capital_price : Int!
+  selling_price : Int!
+  discount : Int!
+  purchace_qty : Int!
+  inventory_product_updated_at : String!
+  product_updated_at : String!
+}
+
+input CustomerInput {
+  email : String
+  name : String
+  phone_number : String
+}
+
 type BulkUpdateVariantsMetadataOutput {
   variant_title : String
   is_any_update : Boolean
 }
 
 type SampleOutput {
-  accessToken : String!
+  isSuccess : Boolean!
 }
 
 type User {
@@ -72,5 +444,45 @@ type User {
 type bulkUpdateInventoryProductOutput {
   insert_inventory_product_variants_affected_rows : Int
   inventory_product_name : String
+}
+
+type createTransactionOutput {
+  isOutOfSync : Boolean
+  invoice_number : String
+  total_transaction : Int!
+  cash_change : Int
+  cash_in_amount : Int!
+  payment_type : String!
+}
+
+type MyMutationOutput {
+  email : String
+  id : uuid!
+  name : String
+  phone_number : String
+}
+
+type sendReceiptOutput {
+  email : String
+  id : uuid!
+  name : String
+  phone_number : String
+  created_at : timestamptz!
+  is_sent : Boolean!
+}
+
+type getWhatsappAuthStatusOutput {
+  is_authenticated : Boolean!
+  qr_code : String
+  client_state : String
+  client_name : String
+  client_phone_number : String
+  client_platform : String
+  client_device_manufacturer : String
+  client_device_model : String
+}
+
+type whatsappSignoutOutput {
+  is_success : Boolean!
 }
 

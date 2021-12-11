@@ -1,0 +1,29 @@
+mutation Transaction_CreateTransactionReceiptWithUpdateCustomer(
+  $customer_id: uuid!
+  $customer_data: rocketjaket_customer_set_input!
+  $receipt_data: rocketjaket_transaction_receipt_insert_input!
+) {
+  update_rocketjaket_customer_by_pk(
+    pk_columns: { id: $customer_id }
+    _set: $customer_data
+  ) {
+    id
+    name
+    email
+    phone_number
+  }
+  insert_rocketjaket_transaction_receipt_one(object: $receipt_data) {
+    id
+    is_sent
+    receipt_type
+    transaction_invoice_number
+    customer_id
+    created_at
+    customer {
+      id
+      email
+      name
+      phone_number
+    }
+  }
+}

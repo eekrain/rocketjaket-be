@@ -269,6 +269,100 @@
     permission:
       filter: {}
 - table:
+    schema: public
+    name: users_fcm_token
+  object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+  insert_permissions:
+  - role: me
+    permission:
+      check:
+        user:
+          id:
+            _eq: X-Hasura-User-Id
+      columns:
+      - id
+      - user_id
+      - fcm_token
+      backend_only: false
+  select_permissions:
+  - role: me
+    permission:
+      columns:
+      - fcm_token
+      - id
+      - user_id
+      filter:
+        user:
+          id:
+            _eq: X-Hasura-User-Id
+  update_permissions:
+  - role: me
+    permission:
+      columns:
+      - fcm_token
+      filter:
+        user:
+          id:
+            _eq: X-Hasura-User-Id
+      check:
+        user:
+          id:
+            _eq: X-Hasura-User-Id
+  delete_permissions:
+  - role: me
+    permission:
+      filter:
+        user:
+          id:
+            _eq: X-Hasura-User-Id
+- table:
+    schema: rocketjaket
+    name: customer
+  array_relationships:
+  - name: transaction_receipts
+    using:
+      foreign_key_constraint_on:
+        column: customer_id
+        table:
+          schema: rocketjaket
+          name: transaction_receipt
+  insert_permissions:
+  - role: administrator
+    permission:
+      check: {}
+      columns:
+      - id
+      - name
+      - phone_number
+      - email
+      backend_only: false
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - email
+      - name
+      - phone_number
+      - id
+      filter: {}
+  update_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - email
+      - name
+      - phone_number
+      - id
+      filter: {}
+      check: {}
+  delete_permissions:
+  - role: administrator
+    permission:
+      filter: {}
+- table:
     schema: rocketjaket
     name: inventory_product
   object_relationships:
@@ -423,6 +517,9 @@
       filter: {}
 - table:
     schema: rocketjaket
+    name: notification
+- table:
+    schema: rocketjaket
     name: product
   object_relationships:
   - name: product_category
@@ -564,6 +661,196 @@
       - name
       - created_at
       - updated_at
+      filter: {}
+      check: {}
+  delete_permissions:
+  - role: administrator
+    permission:
+      filter: {}
+- table:
+    schema: rocketjaket
+    name: transaction
+  array_relationships:
+  - name: transaction_items
+    using:
+      foreign_key_constraint_on:
+        column: transaction_invoice_number
+        table:
+          schema: rocketjaket
+          name: transaction_item
+  - name: transaction_receipts
+    using:
+      foreign_key_constraint_on:
+        column: transaction_invoice_number
+        table:
+          schema: rocketjaket
+          name: transaction_receipt
+  insert_permissions:
+  - role: administrator
+    permission:
+      check: {}
+      columns:
+      - invoice_number
+      - user_id
+      - total_transaction
+      - payment_type
+      - created_at
+      - updated_at
+      - cash_in_amount
+      - cash_change
+      backend_only: false
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - cash_change
+      - cash_in_amount
+      - total_transaction
+      - invoice_number
+      - payment_type
+      - created_at
+      - updated_at
+      - user_id
+      filter: {}
+  update_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - cash_change
+      - cash_in_amount
+      - total_transaction
+      - invoice_number
+      - payment_type
+      - created_at
+      - updated_at
+      - user_id
+      filter: {}
+      check: {}
+  delete_permissions:
+  - role: administrator
+    permission:
+      filter: {}
+- table:
+    schema: rocketjaket
+    name: transaction_item
+  object_relationships:
+  - name: transaction
+    using:
+      foreign_key_constraint_on: transaction_invoice_number
+  insert_permissions:
+  - role: administrator
+    permission:
+      check: {}
+      columns:
+      - id
+      - transaction_invoice_number
+      - product_name
+      - variant
+      - selling_price
+      - discount
+      - purchase_qty
+      - subtotal
+      - created_at
+      - updated_at
+      - capital_price
+      - profit
+      - inventory_product_id
+      backend_only: false
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - capital_price
+      - discount
+      - profit
+      - purchase_qty
+      - selling_price
+      - subtotal
+      - product_name
+      - transaction_invoice_number
+      - variant
+      - created_at
+      - updated_at
+      - id
+      - inventory_product_id
+      filter: {}
+  update_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - capital_price
+      - created_at
+      - discount
+      - id
+      - inventory_product_id
+      - product_name
+      - profit
+      - purchase_qty
+      - selling_price
+      - subtotal
+      - transaction_invoice_number
+      - updated_at
+      - variant
+      filter: {}
+      check: {}
+  delete_permissions:
+  - role: administrator
+    permission:
+      filter: {}
+  event_triggers:
+  - name: updateAvailableQtyOnInsertTransactionItem
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: http://172.17.0.1:3000/event_updateAvailableQtyOnInsertTransactionItem
+- table:
+    schema: rocketjaket
+    name: transaction_receipt
+  object_relationships:
+  - name: customer
+    using:
+      foreign_key_constraint_on: customer_id
+  - name: transaction
+    using:
+      foreign_key_constraint_on: transaction_invoice_number
+  insert_permissions:
+  - role: administrator
+    permission:
+      check: {}
+      columns:
+      - id
+      - transaction_invoice_number
+      - receipt_type
+      - customer_id
+      - created_at
+      - is_sent
+      backend_only: false
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - is_sent
+      - receipt_type
+      - transaction_invoice_number
+      - created_at
+      - customer_id
+      - id
+      filter: {}
+  update_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - is_sent
+      - receipt_type
+      - transaction_invoice_number
+      - created_at
+      - customer_id
+      - id
       filter: {}
       check: {}
   delete_permissions:

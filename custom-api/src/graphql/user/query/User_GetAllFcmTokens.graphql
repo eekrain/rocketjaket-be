@@ -1,0 +1,7 @@
+query User_GetAllFcmTokens {
+  users_fcm_token(distinct_on: fcm_token) {
+    fcm_token
+    id
+    user_id
+  }
+}

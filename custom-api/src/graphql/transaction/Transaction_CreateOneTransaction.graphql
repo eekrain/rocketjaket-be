@@ -1,0 +1,7 @@
+mutation Transaction_CreateOneTransaction(
+  $object: rocketjaket_transaction_insert_input = {}
+) {
+  insert_rocketjaket_transaction_one(object: $object) {
+    invoice_number
+  }
+}

@@ -1,0 +1,9 @@
+query Inventory_GetInventoryProductUpdatedAtByIds($_in: [uuid!]!) {
+  rocketjaket_inventory_product(where: { id: { _in: $_in } }) {
+    id
+    updated_at
+    product {
+      updated_at
+    }
+  }
+}

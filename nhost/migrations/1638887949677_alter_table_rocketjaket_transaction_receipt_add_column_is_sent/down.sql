@@ -1,0 +1,4 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- alter table "rocketjaket"."transaction_receipt" add column "is_sent" boolean
+--  not null;

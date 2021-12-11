@@ -1,0 +1,9 @@
+query Inventory_GetInventoryProductById($id: uuid!) {
+  rocketjaket_inventory_product_by_pk(id: $id) {
+    available_qty
+    min_available_qty
+    product {
+      name
+    }
+  }
+}

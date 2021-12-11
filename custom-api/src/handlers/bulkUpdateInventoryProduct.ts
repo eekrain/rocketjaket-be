@@ -1,9 +1,5 @@
 import { Request, Response } from "express";
-import {
-  bulkUpdateInventoryProductArgs,
-  bulkUpdateInventoryProductOutput,
-} from "src/types/handlers";
-import { getMySdk } from "../utils";
+import { getUserSdk } from "../utils";
 // Request Handler
 
 const handler = async (req: Request, res: Response) => {
@@ -12,7 +8,7 @@ const handler = async (req: Request, res: Response) => {
     "🚀 ~ file: bulkUpdateInventoryProduct.ts ~ line 11 ~ handler ~ params",
     params
   );
-  const sdk = getMySdk(req);
+  const sdk = getUserSdk(req);
 
   const resUpdateInventoryProduct =
     await sdk.Inventory_UpdateInventoryProductByPK({

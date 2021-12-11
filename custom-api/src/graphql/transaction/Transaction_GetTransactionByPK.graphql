@@ -1,0 +1,16 @@
+query Transaction_GetTransactionByPK($invoice_number: String!) {
+  rocketjaket_transaction_by_pk(invoice_number: $invoice_number) {
+    cash_change
+    cash_in_amount
+    created_at
+    invoice_number
+    payment_type
+    total_transaction
+    transaction_items {
+      subtotal
+      product_name
+      variant
+      purchase_qty
+    }
+  }
+}

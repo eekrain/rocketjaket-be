@@ -1,0 +1,2 @@
+CREATE TABLE "rocketjaket"."transaction_receipt" ("id" uuid NOT NULL DEFAULT gen_random_uuid(), "transaction_invoice_number" text NOT NULL, "receipt_type" text NOT NULL, "customer_id" uuid NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("id") , FOREIGN KEY ("transaction_invoice_number") REFERENCES "rocketjaket"."transaction"("invoice_number") ON UPDATE restrict ON DELETE cascade, FOREIGN KEY ("customer_id") REFERENCES "rocketjaket"."customer"("id") ON UPDATE restrict ON DELETE cascade);
+CREATE EXTENSION IF NOT EXISTS pgcrypto;

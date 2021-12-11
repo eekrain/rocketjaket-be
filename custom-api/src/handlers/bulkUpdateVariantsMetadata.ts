@@ -1,15 +1,11 @@
 import { Request, Response } from "express";
-import {
-  bulkUpdateVariantsMetadataArgs,
-  BulkUpdateVariantsMetadataOutput,
-} from "src/types/handlers";
-import { getMySdk } from "../utils";
+import { getUserSdk } from "../utils";
 // Request Handler
 
 const handler = async (req: Request, res: Response) => {
   const params: bulkUpdateVariantsMetadataArgs = req.body.input;
   // execute the parent operation in Hasura
-  const sdk = getMySdk(req);
+  const sdk = getUserSdk(req);
   // anjing
   let handlerResponse: any = {};
   const isAnyUpdate: boolean[] = [];

@@ -1,0 +1,17 @@
+mutation Transaction_CreateTransactionReceipt(
+  $object: rocketjaket_transaction_receipt_insert_input!
+) {
+  insert_rocketjaket_transaction_receipt_one(object: $object) {
+    id
+    is_sent
+    receipt_type
+    transaction_invoice_number
+    created_at
+    customer {
+      id
+      email
+      name
+      phone_number
+    }
+  }
+}

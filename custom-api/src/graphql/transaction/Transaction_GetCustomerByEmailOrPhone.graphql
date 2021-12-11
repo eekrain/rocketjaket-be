@@ -1,0 +1,10 @@
+query Transaction_GetCustomerByEmailOrPhone(
+  $_or: [rocketjaket_customer_bool_exp!]
+) {
+  rocketjaket_customer(limit: 1, where: { _or: $_or }) {
+    id
+    email
+    name
+    phone_number
+  }
+}

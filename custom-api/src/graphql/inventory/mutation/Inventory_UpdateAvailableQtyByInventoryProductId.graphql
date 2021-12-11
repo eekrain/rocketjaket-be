@@ -1,0 +1,15 @@
+mutation Inventory_UpdateAvailableQtyByInventoryProductId(
+  $id: uuid!
+  $available_qty: Int!
+) {
+  update_rocketjaket_inventory_product_by_pk(
+    pk_columns: { id: $id }
+    _set: { available_qty: $available_qty }
+  ) {
+    available_qty
+    min_available_qty
+    product {
+      name
+    }
+  }
+}
