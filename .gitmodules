@@ -1,0 +1,3 @@
+[submodule "whatsapp-node-api"]
+	path = whatsapp-node-api
+	url = git@github.com:eekrain/whatsapp-node-api.git
