@@ -11,6 +11,16 @@ query Transaction_GetTransactionByPK($invoice_number: String!) {
       product_name
       variant
       purchase_qty
+      transaction_status_enum {
+        title
+        transaction_status
+      }
+      transaction_status
     }
+    transaction_status_enum {
+      title
+      transaction_status
+    }
+    transaction_status
   }
 }

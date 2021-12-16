@@ -4,7 +4,9 @@ import axios from "axios";
 import {
   InputMaybe,
   Rocketjaket_Customer_Bool_Exp,
-} from "src/graphql/gql-generated";
+  Rocketjaket_Transaction_Receipt_Type_Enum_Enum,
+  Rocketjaket_Transaction_Status_Enum_Enum,
+} from "../graphql/gql-generated";
 
 // Request Handler
 
@@ -55,45 +57,72 @@ const handler = async (req: Request, res: Response) => {
     return;
   }
 
-  const foundCustomer = await sdk
-    .Transaction_GetCustomerByEmailOrPhone({
-      _or: customerSearch,
-    })
-    .catch((error) => {
-      console.log(
-        "🚀 ~ file: sendReceipt.ts ~ line 16 ~ handler ~ error",
-        error
-      );
-      resTemplates.INTERNAL_SERVER_ERROR(res);
-      return;
-    });
-  if (foundCustomer) {
-    console.log(
-      "🚀 ~ file: sendReceipt.ts ~ line 29 ~ handler ~ foundCustomer",
-      foundCustomer?.data
-    );
-  }
+  const foundCustomer = params.customer?.id
+    ? {
+        id: params.customer.id,
+        name: params.customer.name,
+        email: params.customer.email,
+        phone_number: params.customer.phone_number,
+      }
+    : await sdk
+        .Transaction_GetCustomerByEmailOrPhone({
+          _or: customerSearch,
+        })
+        .then((value) => {
+          const data = value.data?.rocketjaket_customer?.[0];
+          return {
+            id: data?.id,
+            name: data?.name,
+            email: data?.email,
+            phone_number: data?.phone_number,
+          };
+        })
+        .catch((error) => {
+          console.log(
+            "🚀 ~ file: sendReceipt.ts ~ line 16 ~ handler ~ error",
+            error
+          );
+          resTemplates.INTERNAL_SERVER_ERROR(res);
+          return;
+        });
 
   let is_sent = false;
   if (params.customer?.phone_number) {
+    const message = {
+      success: `Terimakasih ${
+        params.customer.name
+      } telah berbelanja di Rocketjaket!\nInvoice: ${
+        params.invoice_number
+      }\nItem dibeli:\n${foundInvoice.data?.rocketjaket_transaction_by_pk?.transaction_items
+        .map((item) => {
+          return `${item.product_name}(x${
+            item.purchase_qty
+          }): ${myNumberFormat.rp(item.subtotal)}`;
+        })
+        .join("\n")}\nTotal: ${myNumberFormat.rp(
+        foundInvoice.data?.rocketjaket_transaction_by_pk?.total_transaction
+      )}`,
+      refundAll: `Transaksi anda dengan nomor invoice ${
+        params.invoice_number
+      } telah di-refund.\nTotal dana yang di-refund sebesar ${myNumberFormat.rp(
+        foundInvoice.data?.rocketjaket_transaction_by_pk?.total_transaction
+      )}.\nMohon maaf atas ketidaknyamanan.`,
+    };
     // const tes
     const resWA = await axios
       .post<MyWASendMessageResponse>(
         `${process.env.WHATSAPP_API_BACKEND}/chat/sendmessage/${params.customer?.phone_number}`,
         {
-          message: `Terimakasih ${
-            params.customer.name
-          } telah berbelanja di Rocketjaket!\nInvoice: ${
-            params.invoice_number
-          }\nItem dibeli:\n${foundInvoice.data?.rocketjaket_transaction_by_pk?.transaction_items
-            .map((item) => {
-              return `${item.product_name}(x${
-                item.purchase_qty
-              }): ${myNumberFormat.rp(item.subtotal)}`;
-            })
-            .join("\n")}\nTotal: ${myNumberFormat.rp(
-            foundInvoice.data?.rocketjaket_transaction_by_pk?.total_transaction
-          )}`,
+          message:
+            foundInvoice.data?.rocketjaket_transaction_by_pk
+              ?.transaction_status ===
+            Rocketjaket_Transaction_Status_Enum_Enum.Success
+              ? message.success
+              : foundInvoice.data?.rocketjaket_transaction_by_pk
+                  ?.transaction_status ===
+                Rocketjaket_Transaction_Status_Enum_Enum.Refund
+              ? message.refundAll
+              : "",
         }
       )
       .catch((error) => {
@@ -107,11 +136,7 @@ const handler = async (req: Request, res: Response) => {
     }
   }
 
-  if (
-    foundCustomer &&
-    foundCustomer.data?.rocketjaket_customer &&
-    foundCustomer.data?.rocketjaket_customer.length > 0
-  ) {
+  if (foundCustomer) {
     console.log(
       "🚀 ~ file: sendReceipt.ts ~ line 85 ~ handler ~ run on found customer"
     );
@@ -119,11 +144,12 @@ const handler = async (req: Request, res: Response) => {
       .Transaction_CreateTransactionReceiptWithUpdateCustomer({
         receipt_data: {
           is_sent,
-          receipt_type: params.receipt_type,
+          receipt_type:
+            params.receipt_type as unknown as Rocketjaket_Transaction_Receipt_Type_Enum_Enum,
           transaction_invoice_number: params.invoice_number,
-          customer_id: foundCustomer.data?.rocketjaket_customer?.[0].id,
+          customer_id: foundCustomer.id,
         },
-        customer_id: foundCustomer.data?.rocketjaket_customer?.[0].id,
+        customer_id: foundCustomer.id,
         customer_data: {
           name: params.customer?.name,
           email: params.customer?.email,
@@ -169,7 +195,8 @@ const handler = async (req: Request, res: Response) => {
       .Transaction_CreateTransactionReceipt({
         object: {
           is_sent,
-          receipt_type: params.receipt_type,
+          receipt_type:
+            params.receipt_type as unknown as Rocketjaket_Transaction_Receipt_Type_Enum_Enum,
           transaction_invoice_number: params.invoice_number,
           customer: {
             data: {

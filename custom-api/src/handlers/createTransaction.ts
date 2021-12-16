@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { getUserSdk } from "../utils";
 import dayjs from "dayjs";
 import { getRandomAlphabet, resTemplates } from "../utils";
+import {
+  Rocketjaket_Transaction_Payment_Type_Enum_Enum,
+  Rocketjaket_Transaction_Status_Enum_Enum,
+} from "../graphql/gql-generated";
 
 const handler = async (req: Request, res: Response) => {
   const params: createTransactionArgs = req.body.input;
@@ -54,6 +58,8 @@ const handler = async (req: Request, res: Response) => {
       payment_type: params.payment_type,
       total_transaction: params.total_transaction,
       isOutOfSync,
+      store_id: params.store_id,
+      transaction_status: TransactionStatusEnum.failed,
     };
     res.send(output);
     return;
@@ -92,7 +98,8 @@ const handler = async (req: Request, res: Response) => {
         total_transaction: params.total_transaction,
         cash_in_amount: params.cash_in_amount,
         cash_change: params.cash_in_amount - params.total_transaction,
-        payment_type: params.payment_type,
+        payment_type:
+          params.payment_type as unknown as Rocketjaket_Transaction_Payment_Type_Enum_Enum,
         user_id: params.user_id,
         transaction_items: {
           data: params.transaction_items.map((item) => {
@@ -111,9 +118,13 @@ const handler = async (req: Request, res: Response) => {
               subtotal,
               profit,
               inventory_product_id: item.product_inventory_id,
+              transaction_status:
+                Rocketjaket_Transaction_Status_Enum_Enum.Success,
             };
           }),
         },
+        transaction_status: Rocketjaket_Transaction_Status_Enum_Enum.Success,
+        store_id: params.store_id,
       },
     })
     .catch((error) => {
@@ -134,6 +145,8 @@ const handler = async (req: Request, res: Response) => {
       cash_change: params.cash_in_amount - params.total_transaction,
       total_transaction: params.total_transaction,
       cash_in_amount: params.cash_in_amount,
+      store_id: params.store_id,
+      transaction_status: TransactionStatusEnum.success,
     };
     console.log(
       "🚀 ~ file: createTransaction.ts ~ line 122 ~ handler ~ output",

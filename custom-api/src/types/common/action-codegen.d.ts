@@ -64,6 +64,28 @@ enum createTransactionRocketjaketTransactionUpdateColumn {
   user_id = "user_id",
 }
 
+enum TransactionPaymentTypeEnum {
+  CASH = "CASH",
+  EDC_BCA = "EDC_BCA",
+  EDC_BRI = "EDC_BRI",
+  EDC_MANDIRI = "EDC_MANDIRI",
+  EWALLET_GOPAY = "EWALLET_GOPAY",
+  EWALLET_LINKAJA = "EWALLET_LINKAJA",
+  EWALLET_SHOPEEPAY = "EWALLET_SHOPEEPAY",
+}
+
+enum TransactionStatusEnum {
+  failed = "failed",
+  refund = "refund",
+  refund_part = "refund_part",
+  success = "success",
+}
+
+enum TransactionReceiptTypeEnum {
+  email = "email",
+  whatsapp = "whatsapp",
+}
+
 type InventoryVariantMetadataInsertInput = {
   variant_title?: Maybe<string>;
   variant_value?: Maybe<string>;
@@ -384,6 +406,7 @@ type transaction_items = {
 };
 
 type CustomerInput = {
+  id?: Maybe<uuid>;
   email?: Maybe<string>;
   name?: Maybe<string>;
   phone_number?: Maybe<string>;
@@ -415,6 +438,8 @@ type createTransactionOutput = {
   cash_change?: Maybe<number>;
   cash_in_amount: number;
   payment_type: string;
+  store_id: number;
+  transaction_status: TransactionStatusEnum;
 };
 
 type MyMutationOutput = {
@@ -448,6 +473,11 @@ type whatsappSignoutOutput = {
   is_success: boolean;
 };
 
+type refundTransactionOutput = {
+  invoice_number: string;
+  is_success: boolean;
+};
+
 type Query = {
   getWhatsappAuthStatus?: Maybe<getWhatsappAuthStatusOutput>;
 };
@@ -456,6 +486,7 @@ type Mutation = {
   bulkUpdateInventoryProduct?: Maybe<bulkUpdateInventoryProductOutput>;
   bulkUpdateVariantsMetadata?: Maybe<BulkUpdateVariantsMetadataOutput>;
   createTransaction?: Maybe<createTransactionOutput>;
+  refundTransaction?: Maybe<refundTransactionOutput>;
   sendReceipt?: Maybe<sendReceiptOutput>;
   whatsappSignout?: Maybe<whatsappSignoutOutput>;
 };
@@ -478,15 +509,22 @@ type bulkUpdateVariantsMetadataArgs = {
 
 type createTransactionArgs = {
   user_id: uuid;
-  payment_type: string;
+  payment_type: TransactionPaymentTypeEnum;
   total_transaction: number;
   cash_in_amount: number;
   transaction_items: Array<transaction_items>;
+  store_id: number;
+};
+
+type refundTransactionArgs = {
+  invoice_number: string;
+  isRefundAll: boolean;
+  refund_reason: string;
 };
 
 type sendReceiptArgs = {
   customer?: Maybe<CustomerInput>;
-  receipt_type: string;
+  receipt_type: TransactionReceiptTypeEnum;
   invoice_number: string;
 };
 

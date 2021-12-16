@@ -218,6 +218,14 @@
   - name: store
     using:
       foreign_key_constraint_on: store_id
+  array_relationships:
+  - name: users_fcm_tokens
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: public
+          name: users_fcm_token
   select_permissions:
   - role: administrator
     permission:
@@ -625,6 +633,14 @@
 - table:
     schema: rocketjaket
     name: store
+  array_relationships:
+  - name: transactions
+    using:
+      foreign_key_constraint_on:
+        column: store_id
+        table:
+          schema: rocketjaket
+          name: transaction
   insert_permissions:
   - role: administrator
     permission:
@@ -670,6 +686,19 @@
 - table:
     schema: rocketjaket
     name: transaction
+  object_relationships:
+  - name: store
+    using:
+      foreign_key_constraint_on: store_id
+  - name: transaction_payment_type_enum
+    using:
+      foreign_key_constraint_on: payment_type
+  - name: transaction_status_enum
+    using:
+      foreign_key_constraint_on: transaction_status
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
   array_relationships:
   - name: transaction_items
     using:
@@ -698,6 +727,9 @@
       - updated_at
       - cash_in_amount
       - cash_change
+      - transaction_status
+      - store_id
+      - refund_reason
       backend_only: false
   select_permissions:
   - role: administrator
@@ -705,9 +737,12 @@
       columns:
       - cash_change
       - cash_in_amount
+      - store_id
       - total_transaction
       - invoice_number
       - payment_type
+      - refund_reason
+      - transaction_status
       - created_at
       - updated_at
       - user_id
@@ -718,9 +753,12 @@
       columns:
       - cash_change
       - cash_in_amount
+      - store_id
       - total_transaction
       - invoice_number
       - payment_type
+      - refund_reason
+      - transaction_status
       - created_at
       - updated_at
       - user_id
@@ -737,6 +775,9 @@
   - name: transaction
     using:
       foreign_key_constraint_on: transaction_invoice_number
+  - name: transaction_status_enum
+    using:
+      foreign_key_constraint_on: transaction_status
   insert_permissions:
   - role: administrator
     permission:
@@ -755,6 +796,7 @@
       - capital_price
       - profit
       - inventory_product_id
+      - transaction_status
       backend_only: false
   select_permissions:
   - role: administrator
@@ -768,6 +810,7 @@
       - subtotal
       - product_name
       - transaction_invoice_number
+      - transaction_status
       - variant
       - created_at
       - updated_at
@@ -779,18 +822,19 @@
     permission:
       columns:
       - capital_price
-      - created_at
       - discount
-      - id
-      - inventory_product_id
-      - product_name
       - profit
       - purchase_qty
       - selling_price
       - subtotal
+      - product_name
       - transaction_invoice_number
-      - updated_at
+      - transaction_status
       - variant
+      - created_at
+      - updated_at
+      - id
+      - inventory_product_id
       filter: {}
       check: {}
   delete_permissions:
@@ -810,6 +854,25 @@
     webhook: http://172.17.0.1:3000/event_updateAvailableQtyOnInsertTransactionItem
 - table:
     schema: rocketjaket
+    name: transaction_payment_type_enum
+  is_enum: true
+  array_relationships:
+  - name: transactions
+    using:
+      foreign_key_constraint_on:
+        column: payment_type
+        table:
+          schema: rocketjaket
+          name: transaction
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - payment_type
+      - title
+      filter: {}
+- table:
+    schema: rocketjaket
     name: transaction_receipt
   object_relationships:
   - name: customer
@@ -818,6 +881,9 @@
   - name: transaction
     using:
       foreign_key_constraint_on: transaction_invoice_number
+  - name: transaction_receipt_type_enum
+    using:
+      foreign_key_constraint_on: receipt_type
   insert_permissions:
   - role: administrator
     permission:
@@ -856,4 +922,48 @@
   delete_permissions:
   - role: administrator
     permission:
+      filter: {}
+- table:
+    schema: rocketjaket
+    name: transaction_receipt_type_enum
+  is_enum: true
+  array_relationships:
+  - name: transaction_receipts
+    using:
+      foreign_key_constraint_on:
+        column: receipt_type
+        table:
+          schema: rocketjaket
+          name: transaction_receipt
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - receipt_type
+      - title
+      filter: {}
+  - role: karyawan
+    permission:
+      columns:
+      - receipt_type
+      - title
+      filter: {}
+- table:
+    schema: rocketjaket
+    name: transaction_status_enum
+  is_enum: true
+  array_relationships:
+  - name: transactions
+    using:
+      foreign_key_constraint_on:
+        column: transaction_status
+        table:
+          schema: rocketjaket
+          name: transaction
+  select_permissions:
+  - role: administrator
+    permission:
+      columns:
+      - transaction_status
+      - title
       filter: {}

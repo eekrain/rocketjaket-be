@@ -19,10 +19,11 @@ type Mutation {
 type Mutation {
   createTransaction (
     user_id: uuid!
-    payment_type: String!
+    payment_type: TransactionPaymentTypeEnum!
     total_transaction: Int!
     cash_in_amount: Int!
     transaction_items: [transaction_items!]!
+    store_id: Int!
   ): createTransactionOutput
 }
 
@@ -31,9 +32,17 @@ type Query {
 }
 
 type Mutation {
+  refundTransaction (
+    invoice_number: String!
+    isRefundAll: Boolean!
+    refund_reason: String!
+  ): refundTransactionOutput
+}
+
+type Mutation {
   sendReceipt (
     customer: CustomerInput
-    receipt_type: String!
+    receipt_type: TransactionReceiptTypeEnum!
     invoice_number: String!
   ): sendReceiptOutput
 }
@@ -100,6 +109,28 @@ enum createTransactionRocketjaketTransactionUpdateColumn {
   """ column name """ total_transaction
   """ column name """ updated_at
   """ column name """ user_id
+}
+
+enum TransactionPaymentTypeEnum {
+  """ Cash """ CASH
+  """ BCA """ EDC_BCA
+  """ BRI """ EDC_BRI
+  """ MANDIRI """ EDC_MANDIRI
+  """ GOPAY """ EWALLET_GOPAY
+  """ LINKAJA """ EWALLET_LINKAJA
+  """ SHOPEEPAY """ EWALLET_SHOPEEPAY
+}
+
+enum TransactionStatusEnum {
+  """ Gagal """ failed
+  """ Refund """ refund
+  """ Refund Sebagian """ refund_part
+  """ Sukses """ success
+}
+
+enum TransactionReceiptTypeEnum {
+  """ Email """ email
+  """ Whatsapp """ whatsapp
 }
 
 input InventoryVariantMetadataInsertInput {
@@ -422,6 +453,7 @@ input transaction_items {
 }
 
 input CustomerInput {
+  id : uuid
   email : String
   name : String
   phone_number : String
@@ -453,6 +485,8 @@ type createTransactionOutput {
   cash_change : Int
   cash_in_amount : Int!
   payment_type : String!
+  store_id : Int!
+  transaction_status : TransactionStatusEnum!
 }
 
 type MyMutationOutput {
@@ -483,6 +517,11 @@ type getWhatsappAuthStatusOutput {
 }
 
 type whatsappSignoutOutput {
+  is_success : Boolean!
+}
+
+type refundTransactionOutput {
+  invoice_number : String!
   is_success : Boolean!
 }
 
