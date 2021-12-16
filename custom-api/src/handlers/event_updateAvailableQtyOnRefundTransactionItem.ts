@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { getAdminSdk, getUserSdk } from "../utils";
-import { getRandomAlphabet, resTemplates } from "../utils";
+import { resTemplates } from "../utils";
 import { myFirebaseAdminApp } from "../server";
 import { getMessaging } from "firebase-admin/messaging";
+import { Rocketjaket_Transaction_Status_Enum_Enum } from "../graphql/gql-generated";
 
 const handler = async (req: Request, res: Response) => {
-  const eventData: eventData_UpdateAvailableQtyOnInsertTransactionItem =
+  const eventData: event_updateAvailableQtyOnRefundTransactionItem =
     req.body.event.data;
   console.log(
     "🚀 ~ file: event_updateAvailableQtyOnInsertTransactionItem.ts ~ line 8 ~ handler ~ eventData",
@@ -33,9 +34,14 @@ const handler = async (req: Request, res: Response) => {
   ) {
     const qtyBefore =
       inventory_produk.data?.rocketjaket_inventory_product_by_pk?.available_qty;
-    const newAvailableQty = qtyBefore
-      ? qtyBefore - eventData.new.purchase_qty
-      : qtyBefore;
+    const newAvailableQty =
+      qtyBefore &&
+      eventData.old.transaction_status ===
+        Rocketjaket_Transaction_Status_Enum_Enum.Success &&
+      eventData.new.transaction_status ===
+        Rocketjaket_Transaction_Status_Enum_Enum.Refund
+        ? qtyBefore + eventData.new.purchase_qty
+        : qtyBefore;
     const response = await sdk.Inventory_UpdateAvailableQtyByInventoryProductId(
       {
         id: eventData.new.inventory_product_id,

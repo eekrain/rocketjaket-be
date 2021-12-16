@@ -852,6 +852,17 @@
       interval_sec: 10
       timeout_sec: 60
     webhook: http://172.17.0.1:3000/event_updateAvailableQtyOnInsertTransactionItem
+  - name: updateAvailableQtyOnRefundTransactionItem
+    definition:
+      enable_manual: false
+      update:
+        columns:
+        - transaction_status
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: http://172.17.0.1:3000/event_updateAvailableQtyOnRefundTransactionItem
 - table:
     schema: rocketjaket
     name: transaction_payment_type_enum
